@@ -1,4 +1,4 @@
-﻿<Window Closing="Window_Closing"
+﻿<Window Closing="window_closing"
         x:Class="RLinPlantville.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

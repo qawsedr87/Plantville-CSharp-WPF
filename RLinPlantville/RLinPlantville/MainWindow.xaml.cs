@@ -113,10 +113,38 @@ namespace RLinPlantville
             {
                 foreach (SeedRecord record in garden)
                 {
-                    // FIXME: count down from DateTime.Now + record.Seed.HarvestDuration 
-                    garden_lb.Items.Add($"{record.Seed.Name} at {record.HarvestTime} (harvest)");
+                    garden_lb.Items.Add($"{record.Seed.Name} ({check_seed_status(record, false)})");
                 }
             }
+        }
+
+        private string check_seed_status(SeedRecord record, Boolean isHarvested)
+        {
+            string status = "harvest";
+
+            if (!isHarvested)
+            {
+                DateTime harvestEndTime = record.HarvestTime.Add(TimeSpan.Parse(record.Seed.HarvertDuration));
+                DateTime harvestSpoiledTime = harvestEndTime.Add(TimeSpan.Parse("00:05:00"));
+
+                TimeSpan timeLeft = harvestEndTime - DateTime.Now;
+                int left = Convert.ToInt32(timeLeft.TotalMinutes.ToString("F0"));
+
+                if (record.IsSpoiled) status = "spoiled";
+                else if (DateTime.Now >= harvestSpoiledTime)
+                {
+                    record.IsSpoiled = true;
+                    status = "spoiled";
+                }
+                // harvestTime <= now < harvestEndTime
+                else if (left >= 1)
+                {
+                    status = $"{left} minutes left";
+                }
+            }
+            
+
+            return status;
         }
 
         private void inventory_btn_Click(object sender, RoutedEventArgs e)
@@ -128,7 +156,7 @@ namespace RLinPlantville
             inventory_lb.Visibility = Visibility.Visible;
             seed_lb.Visibility = Visibility.Collapsed;
 
-            // clear
+            // clearsss
             inventory_lb.Items.Clear();
             if (inventory.Count == 0) empty_inventory_lb();
             else
@@ -202,7 +230,8 @@ namespace RLinPlantville
 
                 foreach (SeedRecord record in inventory)
                 {
-                    earn += record.Seed.HarvertPrice;    
+                    if (!record.IsSpoiled)
+                        earn += record.Seed.HarvertPrice;    
                 }
 
                 // fee 
@@ -245,17 +274,18 @@ namespace RLinPlantville
             {
                 harvest_seed(record, true);
 
-                // FIXME: check valid items which are all harvested status
-                itemsRemove.Add(record);
+                string status = check_seed_status(record, false);
+                if (status.Equals("harvest") || status.Equals("spoiled"))
+                {
+                    itemsRemove.Add(record);
+                }
 
             }
 
             garden.RemoveAll(record => itemsRemove.Contains(record));
+            load_garden_data();
 
             MessageBox.Show($"Harvested {itemsRemove.Count} plants.");
-
-            // FIXME: remove garden_lb 
-            empty_garden_lb();
         }
 
         private void garden_lb_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -265,19 +295,27 @@ namespace RLinPlantville
                 int index = garden_lb.SelectedIndex;
 
                 SeedRecord selected = garden[index];
+
                 harvest_seed(selected, false);
+                
+                string status = check_seed_status(selected, false);
 
-                // update garden record
-                garden.Remove(selected);
-
-                // remove the selectedItem
-                if (selected != null)
+                if (status.Equals("harvest") || status.Equals("spoiled"))
                 {
+                    // update garden record
+                    garden.Remove(selected);
 
-                    garden_lb.Items.Remove(garden_lb.SelectedItem);
+                    // remove the selectedItem
+                    if (selected != null)
+                    {
+
+                        garden_lb.Items.Remove(garden_lb.SelectedItem);
+                    }
+
+                    if (garden_lb.Items.Count == 0) empty_garden_lb();
                 }
 
-                if (garden_lb.Items.Count == 0) empty_garden_lb();
+                
             } else
             {
                 MessageBox.Show("Nothing to harvest.");
@@ -286,25 +324,30 @@ namespace RLinPlantville
 
         private void harvest_seed(SeedRecord record, Boolean isAll)
         {
-            // TODO: check status is harvest and is not spoiled 
+             
+            string status = check_seed_status(record, false);
+            if (status.Equals("harvest") || status.Equals("spoiled"))
+            {
+                // add into inventory
+                inventory.Add(record);
 
-            // add into inventory
-            inventory.Add(record);
+                // add into inventory_lb
+                inventory_lb.Items.Add($"{record.Seed.Name} ${record.Seed.SeedPrice}");
 
-            // add into inventory_lb
-            inventory_lb.Items.Add($"{record.Seed.Name} ${record.Seed.SeedPrice}");
+                // update land
+                land++;
+                land_tb.Text = $"Land: {land}";
 
-            // update land
-            land++;
-            land_tb.Text = $"Land: {land}";
-
-            // show message 
-            if (!isAll)
-                MessageBox.Show($"{record.Seed.Name} harvested.", null, MessageBoxButton.OK);
-            
+                // show message 
+                if (!isAll)
+                    MessageBox.Show($"{record.Seed.Name} harvested.", null, MessageBoxButton.OK);
+            } else
+            {
+                if (!isAll) MessageBox.Show("Nothing to harvest.");
+            }
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e)
+        private void window_closing(object sender, CancelEventArgs e)
         {
             string playerStats = save_player_stats();
 
