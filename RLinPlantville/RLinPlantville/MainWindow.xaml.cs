@@ -30,6 +30,8 @@ namespace RLinPlantville
             new Seed("pears", 2, 20, "00:03:00")
         };
 
+        private static string filePath = "player_stats.txt";
+
         Dictionary<string, Seed> seedDict = new Dictionary<string, Seed>();
         
         private static List<SeedRecord> garden = new List<SeedRecord>();
@@ -44,6 +46,25 @@ namespace RLinPlantville
         {
             InitializeComponent();
 
+            // load player stats 
+            if (File.Exists(filePath))
+            {
+                string json = File.ReadAllText(filePath);
+                farmRecord = JsonConvert.DeserializeObject<FarmRecord>(json);
+
+                garden = farmRecord.Garden;
+                inventory = farmRecord.Inventory;
+                money = farmRecord.Money;
+                land = 15 - garden.Count;
+            }
+
+            load_init_data();
+            
+        }
+
+        private void load_init_data()
+        {
+            // seeds
             foreach (Seed seed in seed_list)
             {
                 seedDict.Add(seed.Name, seed);
@@ -51,12 +72,12 @@ namespace RLinPlantville
                 seed_lb.Items.Add($"{seed.Name} ${seed.SeedPrice}");
             }
 
+            // money and land info
             money_tb.Text = $"Money: ${money.ToString()}";
             land_tb.Text = $"Land: {land.ToString()}";
 
-            if (inventory.Count == 0) empty_inventory_lb();
-            if (garden.Count == 0) empty_garden_lb();
-            
+            // main
+            load_garden_data();
         }
 
         private void empty_inventory_lb()
@@ -80,7 +101,12 @@ namespace RLinPlantville
             inventory_lb.Visibility = Visibility.Collapsed;
             seed_lb.Visibility = Visibility.Collapsed;
 
-            // clear 
+            load_garden_data();
+        }
+
+        private void load_garden_data()
+        {
+
             garden_lb.Items.Clear();
             if (garden.Count == 0) empty_garden_lb();
             else
@@ -141,7 +167,7 @@ namespace RLinPlantville
 
                 // subtract money and land
                 money -= selectedSeed.SeedPrice;
-                money_tb.Text = $"Money: {money}";
+                money_tb.Text = $"Money: ${money}";
                 land--;
                 land_tb.Text = $"Land: {land}";
 
@@ -150,8 +176,7 @@ namespace RLinPlantville
 
             } else
             {
-                Console.WriteLine($"seed_lb.SelectedItem is null and money {money} with land {land}");
-                MessageBox.Show("You don't have enough money.");
+                MessageBox.Show("You don't have enough money or land.");
             }
    
         }
@@ -167,7 +192,7 @@ namespace RLinPlantville
                        MessageBoxImage.Question) == MessageBoxResult.Yes)
                 {
                     money -= 10;
-                    money_tb.Text = $"Money: {money}";
+                    money_tb.Text = $"Money: ${money}";
 
                     inventory_result_message_show(-10);
                 }
@@ -283,9 +308,7 @@ namespace RLinPlantville
         {
             string playerStats = save_player_stats();
 
-            // Save player stats to a log file
-            string logFilePath = "player_stats.txt";
-            File.WriteAllText(logFilePath, playerStats);
+            File.WriteAllText(filePath, playerStats);
         }
 
         private string save_player_stats()
@@ -294,8 +317,7 @@ namespace RLinPlantville
             farmRecord.Inventory = inventory;
             farmRecord.Money = money;
 
-            string res = JsonConvert.SerializeObject(farmRecord);
-            return res;
+            return JsonConvert.SerializeObject(farmRecord); ;
         }
 
     }
@@ -305,22 +327,23 @@ namespace RLinPlantville
         public string Name { get; set; }
         public int SeedPrice { get; set; }
         public int HarvertPrice { get; set; }
-        public TimeSpan HarvertDuration { get; set; } // "hh:mm:ss"
+        public string HarvertDuration { get; set; } // "hh:mm:ss"
 
         public Seed(string name, int sPrice, int hPrice, string hDuration)
         {
             Name = name;
             SeedPrice = sPrice;
             HarvertPrice = hPrice;
-            HarvertDuration = TimeSpan.Parse(hDuration);
+            // HarvertDuration = TimeSpan.Parse(hDuration);
+            HarvertDuration = hDuration;
         }
 
         public override string ToString()
         {
             string seedName = Name;
-            string duration = HarvertDuration.ToString(@"hh\:mm\:ss");
+            // string duration = HarvertDuration.ToString(@"hh\:mm\:ss");
 
-            return $"{seedName}, seed price: {SeedPrice}, harvest price: {HarvertPrice}, time: {duration}";
+            return $"{seedName}, seed price: {SeedPrice}, harvest price: {HarvertPrice}, time: {HarvertDuration}";
         }
     }
 
