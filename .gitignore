@@ -1,3 +1,50 @@
 console-app
 
 .DS_Store
+
+# Visual Studio files
+.vs/
+/bin/
+/obj/
+
+# User-specific files
+*.user
+*.suo
+*.cache
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+
+# NuGet packages
+*.nuget/
+*.nupkg
+packages/
+
+# Build artifacts
+*.build.log
+msbuild.log
+
+# Resharper files
+_ReSharper*/
+*.resharper.user
+*.resharper
+
+# Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Exclude generated files commonly used with source code packages
+*.[Pp]ublish.xml
+*.log
+*.swp
+*.bak
+*.cache
+*.zip
+*.tar.gz
+*.rar
+*.tar.bz2
+*.tar

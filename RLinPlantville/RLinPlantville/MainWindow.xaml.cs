@@ -12,8 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.ComponentModel;
+using System.IO;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 
 namespace RLinPlantville
@@ -36,7 +37,7 @@ namespace RLinPlantville
         private static int money = 100;
         private static int land = 15;
 
-        private static FarmRecord record = new FarmRecord(garden, inventory, money);
+        private static FarmRecord farmRecord = new FarmRecord(garden, inventory, money);
 
 
         public MainWindow()
@@ -53,8 +54,8 @@ namespace RLinPlantville
             money_tb.Text = $"Money: ${money.ToString()}";
             land_tb.Text = $"Land: {land.ToString()}";
 
-            if (inventory.Count() == 0) empty_inventory_lb();
-            if (garden.Count() == 0) empty_garden_lb();
+            if (inventory.Count == 0) empty_inventory_lb();
+            if (garden.Count == 0) empty_garden_lb();
             
         }
 
@@ -81,7 +82,7 @@ namespace RLinPlantville
 
             // clear 
             garden_lb.Items.Clear();
-            if (garden.Count() == 0) empty_garden_lb();
+            if (garden.Count == 0) empty_garden_lb();
             else
             {
                 foreach (SeedRecord record in garden)
@@ -103,7 +104,7 @@ namespace RLinPlantville
 
             // clear
             inventory_lb.Items.Clear();
-            if (inventory.Count() == 0) empty_inventory_lb();
+            if (inventory.Count == 0) empty_inventory_lb();
             else
             {
                 foreach (SeedRecord seedRecord in inventory)
@@ -157,7 +158,7 @@ namespace RLinPlantville
 
         private void sell_inventory_btn_Click(object sender, RoutedEventArgs e) 
         {   
-             if (inventory.Count() == 0)
+             if (inventory.Count == 0)
              {
 
                 if (MessageBox.Show("Are you sure you want to go to the farmer's market without any inventory?",
@@ -184,6 +185,7 @@ namespace RLinPlantville
                 inventory_result_message_show(earn);
 
                 money += earn;
+                money_tb.Text = $"Money: ${money}";
 
                 // clear 
                 inventory.Clear();
@@ -206,6 +208,12 @@ namespace RLinPlantville
         private void garden_harvest_btn_Click(object sender, RoutedEventArgs e)
         {
             
+            if (garden.Count == 0)
+            {
+                MessageBox.Show("Nothing to harvest.");
+                return;
+            } 
+
             List<SeedRecord> itemsRemove = new List<SeedRecord>();
 
             foreach (SeedRecord record in garden)
@@ -227,7 +235,7 @@ namespace RLinPlantville
 
         private void garden_lb_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (garden_lb.SelectedIndex != -1)
+            if (garden_lb.SelectedIndex != -1 && garden.Count > 0)
             {
                 int index = garden_lb.SelectedIndex;
 
@@ -243,6 +251,11 @@ namespace RLinPlantville
 
                     garden_lb.Items.Remove(garden_lb.SelectedItem);
                 }
+
+                if (garden_lb.Items.Count == 0) empty_garden_lb();
+            } else
+            {
+                MessageBox.Show("Nothing to harvest.");
             }
         }
 
@@ -264,6 +277,25 @@ namespace RLinPlantville
             if (!isAll)
                 MessageBox.Show($"{record.Seed.Name} harvested.", null, MessageBoxButton.OK);
             
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            string playerStats = save_player_stats();
+
+            // Save player stats to a log file
+            string logFilePath = "player_stats.txt";
+            File.WriteAllText(logFilePath, playerStats);
+        }
+
+        private string save_player_stats()
+        {
+            farmRecord.Garden = garden;
+            farmRecord.Inventory = inventory;
+            farmRecord.Money = money;
+
+            string res = JsonConvert.SerializeObject(farmRecord);
+            return res;
         }
 
     }
@@ -328,5 +360,7 @@ namespace RLinPlantville
             Inventory = inventory;
             Money = money;
         }
+
+        
     }
 }
