@@ -1,0 +1,16 @@
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\bin\Debug\RLinPlantville.exe.config
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\bin\Debug\RLinPlantville.exe
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\bin\Debug\RLinPlantville.pdb
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\RLinPlantville.csprojAssemblyReference.cache
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\MainWindow.g.cs
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\App.g.cs
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\RLinPlantville_MarkupCompile.cache
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\RLinPlantville_MarkupCompile.lref
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\MainWindow.baml
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\RLinPlantville.g.resources
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\RLinPlantville.Properties.Resources.resources
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\RLinPlantville.csproj.GenerateResource.cache
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\RLinPlantville.exe
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\RLinPlantville.pdb
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\bin\Debug\Newtonsoft.Json.dll
+\\apporto.com\dfs\UCLA\Users\louise360992_ucla\Desktop\RLinPlantville\RLinPlantville\obj\Debug\RLinPlantville.csproj.CopyComplete
