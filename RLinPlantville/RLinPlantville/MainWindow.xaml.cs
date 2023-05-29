@@ -125,7 +125,7 @@ namespace RLinPlantville
             if (!isHarvested)
             {
                 DateTime harvestEndTime = record.HarvestTime.Add(TimeSpan.Parse(record.Seed.HarvertDuration));
-                DateTime harvestSpoiledTime = harvestEndTime.Add(TimeSpan.Parse("00:05:00"));
+                DateTime harvestSpoiledTime = harvestEndTime.Add(TimeSpan.Parse("00:15:00"));
 
                 TimeSpan timeLeft = harvestEndTime - DateTime.Now;
                 int left = Convert.ToInt32(timeLeft.TotalMinutes.ToString("F0"));
