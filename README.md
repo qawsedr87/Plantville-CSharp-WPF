@@ -3,8 +3,18 @@
 > Introduction: This repository is for the Week 8 project in C#II Spring 2023 Course for Windows Presentation Foundation(WPF) application.
 
 ## How It Works
-wip
+The main folder for the project is located at `/RLinPlantville`. You can find the relevant code in the file `Plantville_CSharp/RLinPlantville/RLinPlantville/MainWindow.xaml.cs`.
 
+```shell
+git clone git@github.com:qawsedr87/Plantville-CSharp-WPF.git
+
+cd Plantville-CSharp-WPF/RLinPlantville
+```
+
+The project was developed using Visual Studio 2019.
+
+## Screenshots
+wip
 
 ## Details 
 
