@@ -285,7 +285,8 @@ namespace RLinPlantville
             garden.RemoveAll(record => itemsRemove.Contains(record));
             load_garden_data();
 
-            MessageBox.Show($"Harvested {itemsRemove.Count} plants.");
+            if (itemsRemove.Count == 0) MessageBox.Show("Nothing to harvest.");
+            else MessageBox.Show($"Harvested {itemsRemove.Count} plants.");
         }
 
         private void garden_lb_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -326,7 +327,7 @@ namespace RLinPlantville
         {
              
             string status = check_seed_status(record, false);
-            if (status.Equals("harvest") || status.Equals("spoiled"))
+            if (status.Equals("harvest"))
             {
                 // add into inventory
                 inventory.Add(record);
@@ -335,16 +336,31 @@ namespace RLinPlantville
                 inventory_lb.Items.Add($"{record.Seed.Name} ${record.Seed.SeedPrice}");
 
                 // update land
-                land++;
-                land_tb.Text = $"Land: {land}";
+                add_land();
 
                 // show message 
                 if (!isAll)
-                    MessageBox.Show($"{record.Seed.Name} harvested.", null, MessageBoxButton.OK);
-            } else
+                    MessageBox.Show($"{record.Seed.Name} harvested.");
+            } else if (status.Equals("spoiled"))
+            {
+                // spoiled couldn't store into inventory
+                // update land 
+                add_land();
+
+                // show message 
+                if (!isAll)
+                    MessageBox.Show($"{record.Seed.Name} spoiled.");
+            }
+            else
             {
                 if (!isAll) MessageBox.Show("Nothing to harvest.");
             }
+        }
+
+        private void add_land()
+        {
+            land++;
+            land_tb.Text = $"Land: {land}";
         }
 
         private void window_closing(object sender, CancelEventArgs e)
