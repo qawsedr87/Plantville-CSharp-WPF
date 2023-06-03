@@ -14,7 +14,15 @@ cd Plantville-CSharp-WPF/RLinPlantville
 The project was developed using Visual Studio 2019.
 
 ## Screenshots
-wip
+
+start
+![start_ui](./screenshots/0_start_ui.png)
+
+garden 
+![garden_list](./screenshots/2_garden_list.png)
+
+sell 
+![sell](./screenshots/4_sell.png)
 
 ## Details 
 
