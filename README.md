@@ -1,4 +1,4 @@
-# Plantville 
+# Plantville Online
 
 > Introduction: This repository is for the Week 8(branch: `main`) and final(branch: `final`) project in C#II Spring 2023 Course for Windows Presentation Foundation(WPF) application.
 
@@ -8,85 +8,148 @@ The main folder for the project is located at `/RLinPlantville`. You can find th
 ```shell
 git clone git@github.com:qawsedr87/Plantville-CSharp-WPF.git
 
-cd Plantville-CSharp-WPF/RLinPlantville
+git checkout final
+
+cd Plantville-CSharp-WPF/final/RLinPlantville
 ```
 
-The project was developed using Visual Studio 2019. You also can execute [RLinPlantville.exe](https://github.com/qawsedr87/Plantville-CSharp-WPF/tree/main/RLinPlantville/RLinPlantville/bin/Debug) on Window OS.
+The project was developed using Visual Studio 2019.
 
-## Screenshots
+## Details/Notes
 
-start
-![start_ui](./screenshots/0_start_ui.png)
+1. If the server hasn't been hit in a while, it takes a while to wake up. So be patient on the first load, it may take 30 seconds or so.
+2. Plantville Online builds on the last Plantville project. Once you turn in your Plantville project, you have the option of using your previous Plantvillle code or mine.
+3. For the fianl project, please expand and integrate APIs into Plantville WPF. More info on API below.
 
-garden 
-![garden_list](./screenshots/2_garden_list.png)
+C# desktop UI is not a focus in the course . We use it because it's more fun to visualize than console apps.  I'm going to provide the [UI](/final/example/Plantville_Online_UI_Assets) as a starting point for your project if you want to use it. 
 
-sell 
-![sell](./screenshots/4_sell.png)
+we are going to turn Plantville into an online game. [Give it a shot](/final/example/Plantville_Online/Plantville.exe) to see how it works. 
 
-## Details 
+## New Features
+1. When you are in a textbox, you should be able to press Enter and the submit button should automatically execute. This should happen in most textboxes.
+2. Sign-in page:
+    - Players open the app to a sign-in page. Players can sign in as whatever name they want. This will be their username whenever they post a chat message or submit a trade.
 
-We are going to create a game that will revolutionize the industry. We'll play as a farmer who buys seeds, waits for them to harvest, then reap the rewards! <a id="raw-url" href="https://github.com/qawsedr87/Plantville_CSharp/example/Plantville.exe">Give it a whirl</a> then create it on your own.
+3. Inventory
+    - Update page so instead of listing every plant you have, list them by unique plants and the quantity owned. If there are 0 plants (e.g. 0 strawberries), it should be removed from the list. Pattern of {seed name}[{quantity}]{seed price} (e.g. `spinach [1] $5`)
+    - Update save to file feature to reflect this update.
 
-### Features
-1. Players start with $100
-2. Players start with 15 land plots. This means they can grow 15 plants at one time.
-3. Each menu button displays a different body: Seed emporium, garden, and inventory
-4. Status bar (money and land plots) should be updated on any change.
-5. Seed emporium 
-    - Displays the list of seeds available for sale. This data should be stored in one place only, the seed_list (look below at Code requirements #3). This means we should be able to fully control the seeds available from that list. 
-    - Players can only buy seeds if they have enough money and available land plots.
-    - When you purchase a seed, it automatically gets planted into your garden
-6. Garden
-    - Print message "No plants in garden" if empty.
-    - Display the plants and how long they have until they can be harvested.
-    - If a plant isn't harvested 15 min after it's ready, then it spoils on the vine.
-    - When you harvest a plant, it goes into your inventory. 
-    - Double click each plant to harvest individually. Harvest all button pulls all plants that are ready.
-7. Inventory
-    - Build up fruits and vegetables in your inventory.
-    - You can sell your inventory by going to the farmer's market, but it costs $10 to set up a booth, regardless of how many items you sell. 
-    - Warn player if they try to go to the farmer's market without any product to sell.
-    - Print empty message if empty.
-8. Saving state
-    - If there's no data file, then load player with default stats.
-    - If there's a data file, then load stats from file. Load these stats:
-        - Amount of money they have
-        - What is in their inventory.
-        - What is in their garden.
-    - Player's current state saves to a file when the game closes.
-9. Seeds - These plants are available at the Emporium:
-    - Strawberries
-        - Seed price $2
-        - Harvest price $8
-        - 30 seconds to harvest
-    - Spinach
-        - Seed price $5
-        - Harvest price $21
-        - 1 min to harvest
-    - Pears
-        - Seed price $2
-        - Harvest price $20
-        - 3 minutes to harvest
+4. Chatroom
+    - Displays the latest chat messages.
+        - Task: Make a GET request to the server. More info on API below.
+    - Players can post new chat messages. 
+        - Task: Make a POST request to server. More info on API below.
+    - This chatroom only updates when you first enter the chatroom or after submitting a new message. This won't auto-update (to make it simpler for you). This means you have to click the "Chat" button on the left hand side to get new updates.
+
+5. Propose trade
+    - Propose a trade that appears on the Marketplace. Once completed, it should clear the fields and show confirmation message.
+        - Task: Make a POST request to server.
+    - Plant ComboBox is populated from seed_list variable (the list of seeds we can buy).
+
+        > Side note: Good developers see this as an obvious implementation. We want our data to expand and contract from one source (e.g. seed_list). 
+    - Validation: 
+        - Verify player has enough money to propose trade.
+
+6. Trade Marketplace
+    - On first load, displays latest trades.
+        - Task: Make GET request to server
+        - Each trade has a unique ID.  That ID is called "pk", which stands for Primary Key. This is the ID of the trade we will be using when we ask for it.
+    - Player selects a trade from ListBox, then accepts it. 
+    - Accepting trades: There are two parties to a trade -- the `author` and the `receiver`. 
+
+    - Validation:
+        - Verify player selected a trade before clicking accept button.
+        - Verify player did not accept a trade they proposed. Can only accept trades from other players.
+        - Verify player did not accept a closed trade. Can only accept open trades.
+        - Verify player has enough resources to accept trade. If trade requests 3 strawberries, player must have at least 3 strawberries in their inventory.
+
+7. Author proposed the trade.
+    - Receiver accepted the trade conditions.
+    - When author proposes a trade:
+        - It appears immediately on the trade marketplace.
+        - This part is weird. Ask questions if confusing.
+
+        > Inventory and money exchange does not occur immediately. Author must wait until a person on the marketplace accepts the trade. The first time an author returns to Marketplace after their trade has been accepted, the inventory and money exchange will adjust.
+    
+    - When receiver accepts a trade:
+        - Send message box showing trade has been accepted.
+        - Adjust inventory and money exchange immediately.
+        - Close the trade.
+            - Task: Make POST request to server.
 
 
-### Code requirements
-For the most part, you're free to code it how you want. Just be sure to implement these things in your code.
+## APIs
+Below is an explanation of the URLs, the http methods (e.g. POST or GET), and the variables we need to pass to the server. Please refer to [Api collection of Insomnia](/final//common//Insomnia_2023-06-03.json) and start point with testing Api.
 
-1. Seed class - use it to create seed objects.
-2. Plant class - use it to create plant objects. 
-3. Seed emporium's seeds must be populated from a List of Seeds. It should look something like this:
+1. Chat messages - http://plantville.herokuapp.com/
+    - GET retrieves last 100 chat messages in JSON.
+    ```shell
+    curl --request GET \
+    --url http://plantville.herokuapp.com/ \
+    --header 'Content-Type: application/json'
+    ```
 
-```csharp
-List<Seed> seed_list = new List<Seed>() {
-     new Seed(*TODO*),
-     new Seed(*TODO*),
-     new Seed(*TODO*)
-};
-```
+    - POST adds a new chat message.
+        - Returns last 100 chat messages after adding new chat message.
+        - `username`: the name of player sending chat message
+        - `message`: chat message
 
-### Due dates and milestones
-You have two weeks to complete this project. Try completing the Garden and Seed Emporium sections first.
+    ```shell
+    curl --request POST \
+    --url http://plantville.herokuapp.com/ \
+    --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data username=user1 \
+    --data message=message1
+    ```
 
-### Optional: Hard mode
-Great developers can look at a project of any size and break it into small pieces. There's some real skill in this class. If you want to do this on hard mode, build the project without cheats. The [cheat sheet page](/example/CHEAT_SHEET.md) gives suggestions on build order and breaks the project into smaller pieces.
+2. Trades - http://plantville.herokuapp.com/trades
+    - GET retrieves last 100 trade proposals
+    
+    ```shell
+    curl --request GET \
+    --url http://plantville.herokuapp.com/trades \
+    --header 'Content-Type: application/json'
+    ```
+
+    - POST adds a new trade proposal.
+        - Returns the ID of the new trade. This is useful for tracking which trades are pending for authors waiting for their trade to be accepted.
+        - `author`: name of player sending trade proposal
+        - `plant`: name of plant player wants to buy
+        - `quantity`: amount of plan they want (e.g. 3 strawberries)
+        - `price`: price player willing to pay
+    
+    ```shell
+    curl --request POST \
+    --url http://plantville.herokuapp.com/trades \
+    --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data 'author=user1' \
+    --data plant=pears \
+    --data quantity=10 \
+    --data price=10
+    ```
+
+3. Accept trade - https://plantville.herokuapp.com/accept_trade
+    - POST accepts the trade
+        - `trade_id`: The ID given when adding a new trade proposal
+        - `accepted_by`: the name of player accepting trade proposal
+
+    ```shell
+    curl --request POST \
+    --url https://plantville.herokuapp.com/accept_trade \
+    --header 'Content-Type: application/x-www-form-urlencoded' \
+    --data trade_id=11 \
+    --data 'accepted_by=user2'
+    ```
+
+## Tips
+
+1. Postman App is your friend. I showed you how to use it, I recommend starting from there. Make sure you understand all your GET and POST requests before you start coding.
+2. If you're trying to figure out how to capture Enter key, I found this useful. https://stackoverflow.com/a/11806184/244623 (The answer I used was in the comment by user2010136)
+3. If you need to find an element in a list, I found [this useful](https://stackoverflow.com/a/9854944/244623)
+4. You're going to need to run two apps to test the trading. Run my game against yours. 
+
+> Example: Propose a trade using my app. Use your app to view the trade and accept it.
+
+5. Debug mode: To make things faster, create a debug mode. Things that it can do for you:
+    - Pre-load game with data you need.
+    - Sign-in automatically
