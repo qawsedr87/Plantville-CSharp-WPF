@@ -43,7 +43,8 @@ namespace RLinPlantville
 
         private static FarmRecord farmRecord = new FarmRecord(garden, inventory, money);
 
-
+        // TODO
+        private string g_username = "wpf";
         public MainWindow()
         {
             InitializeComponent();
@@ -51,7 +52,10 @@ namespace RLinPlantville
             // chat
             UpdateChatListBox();
 
-            // load player stats 
+            // username 
+            username_tb.Text = $"Hello, {g_username}";
+
+            // load player_stats 
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath);
@@ -70,11 +74,16 @@ namespace RLinPlantville
         private void load_init_data()
         {
             // seeds
+            propose_seed_cb.Items.Clear();
+
             foreach (Seed seed in seed_list)
             {
                 seedDict.Add(seed.Name, seed);
 
                 seed_lb.Items.Add($"{seed.Name} ${seed.SeedPrice}");
+
+                // combo box 
+                propose_seed_cb.Items.Add(seed.Name);
             }
 
             // money and land info
@@ -503,16 +512,76 @@ namespace RLinPlantville
 
         private void chat_send_btn_Click(object sender, RoutedEventArgs e)
         {
+            if (chat_input_tb.Text == null)
+            {
+                MessageBox.Show("Please Enter Message", null);
+            }
+            else
+            {
+                string input = chat_input_tb.Text;
+                PostChatMessage(new ChatInput(g_username, input));
 
+                // update chat 
+                UpdateChatListBox();
+
+                // clear
+                chat_input_tb.Clear();
+            }
         }
 
-        private void propose_accept_btn_Click(object sender, RoutedEventArgs e)
+        private void chat_input_tb_keyup(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && chat_input_tb.Text != "")
+            {
+                string input = chat_input_tb.Text;
+                PostChatMessage(new ChatInput(g_username, input));
+
+                // update chat 
+                UpdateChatListBox();
+                // clear
+                chat_input_tb.Clear();
+            } else if (e.Key == Key.Enter && chat_input_tb.Text == "")
+            {
+                MessageBox.Show("Please Enter Message", null);
+            }
+        }
+
+        private void propose_seed_sc(object sender, SelectionChangedEventArgs e)
+        {
+            if (propose_seed_cb.SelectedItem != null)
+            {
+                // TODO
+            }
+        }
+
+            private void propose_accept_btn_Click(object sender, RoutedEventArgs e)
         {
 
         }
 
         private void propose_summit_btn_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                int quantity = int.Parse(propose_quantity_tb.Text);
+                int price = int.Parse(propose_price_tb.Text);
+
+                string plant = propose_seed_cb.SelectedItem.ToString();
+
+                TradeInput trade = new TradeInput(g_username, plant, quantity, price);
+                PostTrade(trade);
+
+                // clear 
+                propose_seed_cb.Items.Clear();
+                propose_quantity_tb.Clear();
+                propose_price_tb.Clear();
+
+
+            } catch (Exception ex)
+            {
+                MessageBox.Show("Input string was not in a correct format in Quantity and Price", null);
+                Console.WriteLine(ex.ToString());
+            }
 
         }
 
@@ -575,7 +644,74 @@ namespace RLinPlantville
                 chat_lb.Items.Add($"{c.Fields.Username}: {c.Fields.Message}");
             }
         }
- 
+
+        public static List<Trade> PostTrade(TradeInput trade)
+        {
+            var url = new Uri("http://plantville.herokuapp.com/trades");
+            var formData = new Dictionary<string, string> {
+                { "author", trade.Author },
+                { "plant", trade.Plant },
+                { "quantity", trade.Quantity.ToString() },
+                { "price", trade.Price.ToString() }
+            };
+
+            try
+            {
+                var task = PostJsonArrayAsync(url, formData);
+
+                System.Console.WriteLine($"New Trade Open: {task}");
+                MessageBox.Show("Successfully Added!");
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine($"Post Trade Error: {e.ToString()}");
+            }
+
+            return GetTrades();
+        }
+
+        public static List<Chat> PostChatMessage(ChatInput chat)
+        {
+            var url = new Uri("http://plantville.herokuapp.com");
+            var formData = new Dictionary<string, string> {
+                { "username", chat.Username },
+                { "message", chat.Message }
+            };
+
+            List<Chat> list = new List<Chat>();
+
+            try
+            {
+                var arrayTask = PostJsonArrayAsync(url, formData);
+
+                var jsonArray = JArray.Parse(arrayTask);
+                foreach (JObject obj in jsonArray)
+                {
+                    Chat item = obj.ToObject<Chat>();
+
+                    // System.Console.WriteLine(item.ToString());
+                    list.Add(item);
+                }
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine($"Post Chat Message Error: {e.ToString()}");
+            }
+
+            return list;
+        }
+
+        public static string PostJsonArrayAsync(Uri uri, Dictionary<string, string> formData)
+        {
+            using (var client = new HttpClient())
+            {
+                var response = client.PostAsync(uri, new FormUrlEncodedContent(formData)).Result;
+                response.EnsureSuccessStatusCode();
+
+                return response.Content.ReadAsStringAsync().Result;
+            }
+        }
+
         public static JArray GetJsonArrayAsync(Uri uri)
         {
             using (var client = new HttpClient())
