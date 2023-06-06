@@ -13,7 +13,10 @@ git checkout final
 cd Plantville-CSharp-WPF/final/RLinPlantville
 ```
 
-The project was developed using Visual Studio 2019.
+The project was developed using Visual Studio 2019. You also can execute [RLinPlantville.exe](/RLinPlantville/RLinPlantville/bin//Debug) on Window OS. 
+
+## Screenshots 
+[Preview with screenshots](/screenshots)
 
 ## Details/Notes
 
