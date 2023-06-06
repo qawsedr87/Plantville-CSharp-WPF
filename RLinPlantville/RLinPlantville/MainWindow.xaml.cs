@@ -607,6 +607,12 @@ namespace RLinPlantville
             List<Trade> trades = GetTrades();
  
             Trade selectedTrade = trades[index];
+            if (selectedTrade.Fields.Author.Equals(g_username))
+            {
+                MessageBox.Show("Error: You cannot accept a trade that you proposed.", null);
+                return;
+            }
+
             if (!selectedTrade.Fields.State.Equals("open"))
             {
                 MessageBox.Show("Trade is not available, please try again!", null);
