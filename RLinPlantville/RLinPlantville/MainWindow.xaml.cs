@@ -44,8 +44,7 @@ namespace RLinPlantville
         // private static FarmRecord farmRecord = new FarmRecord(garden, inventory, money);
         private static TradeFarmRecord tradeFarmRecord = new TradeFarmRecord(garden, inventory, money);
 
-        // TODO
-        private string g_username = "wpf";
+        private string g_username = "";
         public MainWindow()
         {
             InitializeComponent();
@@ -70,6 +69,39 @@ namespace RLinPlantville
 
             load_init_data();
             
+        }
+
+        private void signin_tb_keyup(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter && signin_tb.Text != "")
+            {
+                load_g_username(signin_tb.Text);
+            }
+            else if (e.Key == Key.Enter && signin_tb.Text == "")
+            {
+                MessageBox.Show("Please Enter Message", null);
+            }
+        }
+
+        private void signin_btn_Click(object sender, RoutedEventArgs e)
+        {
+            if (signin_tb.Text == null)
+            {
+                MessageBox.Show("Please Enter Message", null);
+            }
+            else
+            {
+                load_g_username(signin_tb.Text);
+            }
+        }
+
+        private void load_g_username(string name)
+        {
+            g_username = name;
+            username_tb.Text = $"Hello, {g_username}";
+
+            signin_grid.Visibility = Visibility.Collapsed;
+            menu_grid.Visibility = Visibility.Visible;
         }
 
         private void load_init_data()
