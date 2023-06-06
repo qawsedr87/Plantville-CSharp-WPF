@@ -27,7 +27,7 @@
         <ListBox x:Name="chat_lb" HorizontalAlignment="Left" Height="180" Margin="240,142,0,0" VerticalAlignment="Top" Width="230" />
         <ListBox x:Name="propose_lb" HorizontalAlignment="Left" Height="180" Margin="240,142,0,0" VerticalAlignment="Top" Width="230" Visibility="Collapsed">
             <TextBlock x:Name="p_seed_tb" Text="Plant" VerticalAlignment="Top"/>
-            <ComboBox x:Name="propose_seed_cb" Width="120" SelectionChanged="propose_seed_sc"/>
+            <ComboBox x:Name="propose_seed_cb" Width="120"/>
             <TextBlock x:Name="p_quantity_tb" Text="Quantity" VerticalAlignment="Top"/>
             <TextBox x:Name="propose_quantity_tb" Height="22" TextWrapping="Wrap" Width="120"/>
             <TextBlock x:Name="p_price_tb" Text="Price" VerticalAlignment="Top"/>

@@ -36,12 +36,13 @@ namespace RLinPlantville
 
         Dictionary<string, Seed> seedDict = new Dictionary<string, Seed>();
         
-        private static List<SeedRecord> garden = new List<SeedRecord>();
-        private static List<SeedRecord> inventory = new List<SeedRecord>();
+        private static List<TradeRecord> garden = new List<TradeRecord>();
+        private static List<TradeRecord> inventory = new List<TradeRecord>();
         private static int money = 100;
         private static int land = 15;
 
-        private static FarmRecord farmRecord = new FarmRecord(garden, inventory, money);
+        // private static FarmRecord farmRecord = new FarmRecord(garden, inventory, money);
+        private static TradeFarmRecord tradeFarmRecord = new TradeFarmRecord(garden, inventory, money);
 
         // TODO
         private string g_username = "wpf";
@@ -59,11 +60,11 @@ namespace RLinPlantville
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath);
-                farmRecord = JsonConvert.DeserializeObject<FarmRecord>(json);
+                tradeFarmRecord = JsonConvert.DeserializeObject<TradeFarmRecord>(json);
 
-                garden = farmRecord.Garden;
-                inventory = farmRecord.Inventory;
-                money = farmRecord.Money;
+                garden = tradeFarmRecord.Garden;
+                inventory = tradeFarmRecord.Inventory;
+                money = tradeFarmRecord.Money;
                 land = 15 - garden.Count;
             }
 
@@ -154,14 +155,14 @@ namespace RLinPlantville
             if (garden.Count == 0) empty_garden_lb();
             else
             {
-                foreach (SeedRecord record in garden)
+                foreach (TradeRecord record in garden)
                 {
                     garden_lb.Items.Add($"{record.Seed.Name} ({check_seed_status(record, false)})");
                 }
             }
         }
 
-        private string check_seed_status(SeedRecord record, Boolean isHarvested)
+        private string check_seed_status(TradeRecord record, Boolean isHarvested)
         {
             string status = "harvest";
 
@@ -215,17 +216,23 @@ namespace RLinPlantville
 
             set_menu_visibility(menusToShow, menusToHide);
 
-            // clearsss
+            // clear
             inventory_lb.Items.Clear();
             if (inventory.Count == 0) empty_inventory_lb();
             else
             {
-                foreach (SeedRecord seedRecord in inventory)
+                var groupInventory = GetGroupInventoryList(inventory);
+
+                foreach (TradeRecord seedRecord in groupInventory)
                 {
-                    inventory_lb.Items.Add($"{seedRecord.Seed.Name} ${seedRecord.Seed.SeedPrice}");
+                    inventory_lb.Items.Add($"{seedRecord.Seed.Name} [{seedRecord.Quantity}] ${seedRecord.Seed.SeedPrice}");
                 }
+
+                // update new inventory list 
+                inventory = groupInventory;
             }
         }
+
 
         private void seed_btn_Click(object sender, RoutedEventArgs e)
         {
@@ -321,7 +328,7 @@ namespace RLinPlantville
                 Seed selectedSeed = seedDict[selected];
 
                 // add into garden
-                SeedRecord record = new SeedRecord(selectedSeed, DateTime.Now, false);
+                TradeRecord record = new TradeRecord(selectedSeed, DateTime.Now, 1, false);
                 garden.Add(record);
 
                 // subtract money and land
@@ -359,10 +366,15 @@ namespace RLinPlantville
             {
                 int earn = 0;
 
-                foreach (SeedRecord record in inventory)
+                foreach (TradeRecord record in inventory)
                 {
                     if (!record.IsSpoiled)
-                        earn += record.Seed.HarvertPrice;    
+                    {
+                        int quantity = record.Quantity;
+                        int price = record.Seed.HarvertPrice;
+
+                        earn += quantity * price;
+                    }
                 }
 
                 // fee 
@@ -399,9 +411,9 @@ namespace RLinPlantville
                 return;
             } 
 
-            List<SeedRecord> itemsRemove = new List<SeedRecord>();
+            List<TradeRecord> itemsRemove = new List<TradeRecord>();
 
-            foreach (SeedRecord record in garden)
+            foreach (TradeRecord record in garden)
             {
                 harvest_seed(record, true);
 
@@ -426,7 +438,7 @@ namespace RLinPlantville
             {
                 int index = garden_lb.SelectedIndex;
 
-                SeedRecord selected = garden[index];
+                TradeRecord selected = garden[index];
 
                 harvest_seed(selected, false);
                 
@@ -454,17 +466,13 @@ namespace RLinPlantville
             }
         }
 
-        private void harvest_seed(SeedRecord record, Boolean isAll)
+        private void harvest_seed(TradeRecord record, Boolean isAll)
         {
              
             string status = check_seed_status(record, false);
             if (status.Equals("harvest"))
             {
-                // add into inventory
                 inventory.Add(record);
-
-                // add into inventory_lb
-                inventory_lb.Items.Add($"{record.Seed.Name} ${record.Seed.SeedPrice}");
 
                 // update land
                 add_land();
@@ -503,11 +511,11 @@ namespace RLinPlantville
 
         private string save_player_stats()
         {
-            farmRecord.Garden = garden;
-            farmRecord.Inventory = inventory;
-            farmRecord.Money = money;
+            tradeFarmRecord.Garden = garden;
+            tradeFarmRecord.Inventory = inventory;
+            tradeFarmRecord.Money = money;
 
-            return JsonConvert.SerializeObject(farmRecord); ;
+            return JsonConvert.SerializeObject(tradeFarmRecord); ;
         }
 
         private void chat_send_btn_Click(object sender, RoutedEventArgs e)
@@ -546,16 +554,90 @@ namespace RLinPlantville
             }
         }
 
-        private void propose_seed_sc(object sender, SelectionChangedEventArgs e)
+        private void propose_accept_btn_Click(object sender, RoutedEventArgs e)
         {
-            if (propose_seed_cb.SelectedItem != null)
+            // selected
+            if(trade_lb.SelectedItem == null)
             {
-                // TODO
+                MessageBox.Show("Error: Please select a trade to accept.", null);
+                return;
+            }
+
+            // inventory none 
+            if (inventory.Count == 0)
+            {
+                MessageBox.Show("Inventory Empty!", null);
+                return;
+            }
+
+            // Trade
+            int index = trade_lb.SelectedIndex;
+            List<Trade> trades = GetTrades();
+ 
+            Trade selectedTrade = trades[index];
+            if (!selectedTrade.Fields.State.Equals("open"))
+            {
+                MessageBox.Show("Trade is not available, please try again!", null);
+                return;
+            }
+
+            // check inventory and trade deal 
+            if (!IsInStock(selectedTrade))
+            {
+                MessageBox.Show($"Error: You do not have enough {selectedTrade.Fields.Plant} in your inventory to make trade.", null);
+                return;
+            }
+
+            // api
+            AcceptTradeInput accept = new AcceptTradeInput(selectedTrade.Pk, g_username);
+            List<Trade> newTrades = PostAcceptTrade(accept);
+            if (newTrades.Count == trades.Count)
+            {
+                // earn money
+                money += selectedTrade.Fields.Price;
+
+                MessageBox.Show($"Trade accepted! You bought {selectedTrade.Fields.Quantity} {selectedTrade.Fields.Plant} for ${selectedTrade.Fields.Price} from {selectedTrade.Fields.Author}");
+
+                money_tb.Text = $"Money: ${money}";
+
+                // update inventory 
+                var matchingRecord = inventory.FirstOrDefault(record =>
+                    record.Seed.Name.Equals(selectedTrade.Fields.Plant) &&
+                    !record.IsSpoiled &&
+                    record.Quantity >= selectedTrade.Fields.Quantity
+                );
+
+                if (matchingRecord != null)
+                {
+                    int remainingQuantity = matchingRecord.Quantity - selectedTrade.Fields.Quantity;
+                    if (remainingQuantity > 0)
+                    {
+                        matchingRecord.Quantity = remainingQuantity;
+                    }
+                    else
+                    {
+                        inventory.Remove(matchingRecord);
+                    }
+                }
+
+                // update trade 
+                UpdateTradeListBox();
             }
         }
 
-            private void propose_accept_btn_Click(object sender, RoutedEventArgs e)
+        private bool IsInStock(Trade trade)
         {
+            List<TradeRecord> updatedInventory = GetGroupInventoryList(inventory);
+            inventory = updatedInventory;
+
+            // check if updatedInventory has enough trade quantity 
+            var checkStock = inventory.Where(record =>
+                record.Seed.Name.Equals(trade.Fields.Plant) &&
+                !record.IsSpoiled &&
+                record.Quantity >= trade.Fields.Quantity
+            );
+
+            return checkStock.Any();
 
         }
 
@@ -614,6 +696,24 @@ namespace RLinPlantville
             UpdateChatListBox();
         }
 
+        public static List<TradeRecord> GetGroupInventoryList(List<TradeRecord> list)
+        {
+            // LINQ for quantity by "group by Seed" and "IsSpoiled is false"
+            List<TradeRecord> inventoryList = inventory.Where(record => !record.IsSpoiled)
+                .GroupBy(record => record.Seed.ToString())
+                .Select(group =>
+                {
+                    Seed seed = group.FirstOrDefault()?.Seed;
+                    DateTime harvestTime = group.FirstOrDefault()?.HarvestTime ?? DateTime.Now;
+                    int quantity = group.Sum(record => record.Quantity);
+
+                    return new TradeRecord(seed, harvestTime, quantity, false);
+                })
+                .ToList();
+
+            return inventoryList;
+        }
+
         public void UpdateTradeListBox()
         {
             List<Trade> list = GetTrades();
@@ -643,6 +743,47 @@ namespace RLinPlantville
             {
                 chat_lb.Items.Add($"{c.Fields.Username}: {c.Fields.Message}");
             }
+        }
+        public static List<Trade> PostAcceptTrade(AcceptTradeInput accept)
+        {
+            var url = new Uri("https://plantville.herokuapp.com/accept_trade");
+            var formData = new Dictionary<string, string> {
+                { "trade_id", accept.TradeId.ToString() },
+                { "accepted_by", accept.AcceptedBy }
+            };
+
+            List<Trade> list = new List<Trade>();
+
+            try
+            {
+
+                var arrayTask = PostJsonArrayAsync(url, formData);
+
+                if (arrayTask.Equals("FAIL"))
+                {
+                    MessageBox.Show($"Post Accepted Trade Error: couldn't accept trade_id '{accept.TradeId}' because trade state is not open.", null);
+                    return list;
+                }
+
+                var jsonArray = JArray.Parse(arrayTask);
+                foreach (JObject obj in jsonArray)
+                {
+                    Trade item = obj.ToObject<Trade>();
+
+                    // System.Console.WriteLine(item.ToString());
+                    list.Add(item);
+                }
+            }
+            catch (AggregateException e)
+            {
+                MessageBox.Show($"Post Accepted Trade Error: trade_id '{accept.TradeId}' doesn't exist.", null);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show($"Post Accepted Trade Error: {e.ToString()}", null);
+            }
+
+            return list;
         }
 
         public static List<Trade> PostTrade(TradeInput trade)
@@ -749,7 +890,62 @@ namespace RLinPlantville
 
             return list;
         }
+
     }
+    public class TradeFarmRecord
+    {
+
+        public List<TradeRecord> Garden { get; set; }
+        public List<TradeRecord> Inventory { get; set; }
+        public int Money { get; set; }
+
+        public TradeFarmRecord(List<TradeRecord> garden, List<TradeRecord> inventory, int money)
+        {
+            Garden = garden;
+            Inventory = inventory;
+            Money = money;
+        }
+    }
+
+    public class TradeRecord
+    {
+        public Seed Seed { get; set; }
+        public DateTime HarvestTime { get; set; } // default: Now
+        public int Quantity { get; set; } // default: 1
+
+        public bool IsSpoiled { get; set; } // default: false
+
+        public TradeRecord(Seed seed, DateTime harvestTime, int quantity, bool isSpoiled)
+        {
+            Seed = seed;
+            HarvestTime = harvestTime;
+            Quantity = quantity;
+            IsSpoiled = isSpoiled;
+        }
+
+        public override string ToString()
+        {
+            string seedInfo = Seed.ToString();
+            string harvestTime = HarvestTime.ToString("yyyy-MM-ddTHH:mm:ss.fffffffK");
+            bool isSpoiled = IsSpoiled;
+            int quantity = Quantity;
+
+            return $"- Trade Seed[{quantity}]: {seedInfo}, Harvest Time: {harvestTime}, Is Spoiled: {isSpoiled}\n";
+        }
+    }
+
+    public class AcceptTradeInput
+    {
+        public int TradeId { get; set; }
+        public string AcceptedBy { get; set; }
+
+        public AcceptTradeInput(int id, string acceptdBy)
+        {
+            TradeId = id;
+            AcceptedBy = acceptdBy;
+        }
+    }
+
     public class Trade
     {
         public string Model { get; set; }
