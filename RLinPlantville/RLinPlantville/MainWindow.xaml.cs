@@ -14,7 +14,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.ComponentModel;
 using System.IO;
+using System.Net.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 
 namespace RLinPlantville
@@ -45,6 +47,9 @@ namespace RLinPlantville
         public MainWindow()
         {
             InitializeComponent();
+
+            // chat
+            UpdateChatListBox();
 
             // load player stats 
             if (File.Exists(filePath))
@@ -92,14 +97,43 @@ namespace RLinPlantville
             garden_lb.Items.Add("No plants in garden.");
         }
 
+        public void set_menu_visibility(List<UIElement> menusToShow, List<UIElement> menusToHide)
+        {
+            foreach (var menu in menusToShow)
+            {
+                menu.Visibility = Visibility.Visible;
+            }
+
+            foreach (var menu in menusToHide)
+            {
+                menu.Visibility = Visibility.Collapsed;
+            }
+        }
+
         private void garden_btn_Click(object sender, RoutedEventArgs e)
         {
             init_title("Garden", "What you would like to harvest?");
-            garden_harvest_btn.Visibility = Visibility.Visible;
-            inventory_sell_btn.Visibility = Visibility.Collapsed;
-            garden_lb.Visibility = Visibility.Visible;
-            inventory_lb.Visibility = Visibility.Collapsed;
-            seed_lb.Visibility = Visibility.Collapsed;
+            List<UIElement> menusToShow = new List<UIElement>
+            {
+                garden_harvest_btn,
+                garden_lb
+            };
+
+            List<UIElement> menusToHide = new List<UIElement>
+            {
+                inventory_sell_btn,
+                propose_accept_btn,
+                chat_send_btn,
+                chat_input_tb,
+                inventory_lb,
+                seed_lb,
+                chat_lb,
+                trade_lb,
+                propose_lb,
+                propose_summit_btn
+            };
+
+            set_menu_visibility(menusToShow, menusToHide);
 
             load_garden_data();
         }
@@ -150,11 +184,27 @@ namespace RLinPlantville
         private void inventory_btn_Click(object sender, RoutedEventArgs e)
         {
             init_title("Inventory", "$10 each trip to farmer's market.");
-            inventory_sell_btn.Visibility = Visibility.Visible;
-            garden_harvest_btn.Visibility = Visibility.Collapsed;
-            garden_lb.Visibility = Visibility.Collapsed;
-            inventory_lb.Visibility = Visibility.Visible;
-            seed_lb.Visibility = Visibility.Collapsed;
+            List<UIElement> menusToShow = new List<UIElement>
+            {
+                inventory_sell_btn,
+                inventory_lb
+            };
+
+            List<UIElement> menusToHide = new List<UIElement>
+            {
+                garden_harvest_btn,
+                garden_lb,
+                propose_accept_btn,
+                chat_send_btn,
+                chat_input_tb,
+                seed_lb,
+                chat_lb,
+                trade_lb,
+                propose_lb,
+                propose_summit_btn
+            };
+
+            set_menu_visibility(menusToShow, menusToHide);
 
             // clearsss
             inventory_lb.Items.Clear();
@@ -171,13 +221,83 @@ namespace RLinPlantville
         private void seed_btn_Click(object sender, RoutedEventArgs e)
         {
             init_title("Seeds Emporium", "What you would like to purchase?");
-            inventory_sell_btn.Visibility = Visibility.Collapsed;
-            garden_harvest_btn.Visibility = Visibility.Collapsed;
+            List<UIElement> menusToShow = new List<UIElement>
+            {
+                seed_lb
+            };
 
-            garden_lb.Visibility = Visibility.Collapsed;
-            inventory_lb.Visibility = Visibility.Collapsed;
-            seed_lb.Visibility = Visibility.Visible;
-            
+            List<UIElement> menusToHide = new List<UIElement>
+            {
+                garden_harvest_btn,
+                garden_lb,
+                propose_accept_btn,
+                chat_send_btn,
+                chat_input_tb,
+                inventory_sell_btn,
+                inventory_lb,
+                chat_lb,
+                trade_lb,
+                propose_lb,
+                propose_summit_btn
+            };
+
+            set_menu_visibility(menusToShow, menusToHide);
+
+        }
+
+        private void trade_btn_Click(object sender, RoutedEventArgs e)
+        {
+            init_title("Trade Marketplace", "");
+            List<UIElement> menusToShow = new List<UIElement>
+            {
+                trade_lb,
+                propose_accept_btn
+            };
+
+            List<UIElement> menusToHide = new List<UIElement>
+            {
+                garden_harvest_btn,
+                garden_lb,
+                chat_send_btn,
+                chat_input_tb,
+                inventory_sell_btn,
+                inventory_lb,
+                chat_lb,
+                seed_lb,
+                propose_lb,
+                propose_summit_btn
+            };
+
+            set_menu_visibility(menusToShow, menusToHide);
+
+        }
+
+        private void propose_btn_Click(object sender, RoutedEventArgs e)
+        {
+            init_title("Propose Trade", "");
+            List<UIElement> menusToShow = new List<UIElement>
+            {
+
+                propose_lb,
+                propose_summit_btn
+            };
+
+            List<UIElement> menusToHide = new List<UIElement>
+            {
+                garden_harvest_btn,
+                garden_lb,
+                chat_send_btn,
+                chat_input_tb,
+                inventory_sell_btn,
+                inventory_lb,
+                chat_lb,
+                seed_lb,
+                trade_lb,
+                propose_accept_btn
+            };
+
+            set_menu_visibility(menusToShow, menusToHide);
+
         }
 
         private void seed_lb_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -379,6 +499,127 @@ namespace RLinPlantville
             return JsonConvert.SerializeObject(farmRecord); ;
         }
 
+        private void chat_send_btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void propose_accept_btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void propose_summit_btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void chat_btn_Click(object sender, RoutedEventArgs e)
+        {
+            init_title("Chatroom", "");
+            List<UIElement> menusToShow = new List<UIElement>
+            {
+
+                chat_send_btn,
+                chat_input_tb,
+                chat_lb
+            };
+
+            List<UIElement> menusToHide = new List<UIElement>
+            {
+                garden_harvest_btn,
+                garden_lb,
+                propose_lb,
+                propose_summit_btn,
+                inventory_sell_btn,
+                inventory_lb,
+                seed_lb,
+                trade_lb,
+                propose_accept_btn
+            };
+
+            set_menu_visibility(menusToShow, menusToHide);
+
+            UpdateChatListBox();
+        }
+
+        public void UpdateChatListBox() {
+            List<Chat> list = GetChatMessages();
+            chat_lb.Items.Clear();
+
+            foreach (Chat c in list)
+            {
+                chat_lb.Items.Add($"{c.Fields.Username}: {c.Fields.Message}");
+            }
+        }
+ 
+        public static JArray GetJsonArrayAsync(Uri uri)
+        {
+            using (var client = new HttpClient())
+            {
+                string jsonString = client.GetStringAsync(uri).Result;
+
+                return JArray.Parse(jsonString);
+            }
+        }
+        public static List<Chat> GetChatMessages()
+        {
+            var url = new Uri("http://plantville.herokuapp.com");
+            return GetObjects<Chat>(url);
+        }
+
+        // Get 
+        public static List<T> GetObjects<T>(Uri url)
+        {
+
+            var jsonArray = GetJsonArrayAsync(url);
+
+            List<T> list = new List<T>();
+            foreach (JObject obj in jsonArray)
+            {
+                T item = obj.ToObject<T>();
+
+                // System.Console.WriteLine(item.ToString());
+                list.Add(item);
+            }
+
+            return list;
+        }
+    }
+    public class ChatInput
+    {
+        public string Username { get; set; }
+        public string Message { get; set; }
+
+        public ChatInput(string username, string message)
+        {
+            Username = username;
+            Message = message;
+        }
+    }
+
+    public class Chat
+    {
+        public string Model { get; set; }
+        public int Pk { get; set; }
+        public ChatMeta Fields { get; set; }
+
+        public class ChatMeta
+        {
+            public string Username { get; set; }
+            public string Message { get; set; }
+
+            [JsonProperty("created_at")]
+            public DateTime CreatedAt { get; set; }
+
+            [JsonProperty("updated_at")]
+            public DateTime UpdatedAt { get; set; }
+        }
+
+        public override string ToString()
+        {
+            return $"Model {Model}, Pk {Pk}, Fields: {Fields.Username}, {Fields.Message} @{Fields.CreatedAt.ToString("yyyy-mm-ddTHH:mm:ss.fffZ")}";
+        }
     }
 
     public class Seed

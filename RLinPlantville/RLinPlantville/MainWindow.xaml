@@ -11,16 +11,33 @@
         <Button x:Name="seed_btn" Content="Seeds Emporium" HorizontalAlignment="Left" Margin="85,164,0,0" VerticalAlignment="Top" Width="118" Click="seed_btn_Click"/>
         <Button x:Name="garden_btn" Content="Garden" HorizontalAlignment="Left" Margin="85,100,0,0" VerticalAlignment="Top" Width="118" Click="garden_btn_Click"/>
         <Button x:Name="inventory_btn" Content="Inventory" HorizontalAlignment="Left" Margin="85,132,0,0" VerticalAlignment="Top" Width="118" Click="inventory_btn_Click"/>
-        <TextBlock x:Name="title_tb" HorizontalAlignment="Left" Margin="240,88,0,0" TextWrapping="Wrap" Text="Garden" VerticalAlignment="Top" FontSize="20" FontWeight="Bold"/>
-        <TextBlock x:Name="subtitle_tb" HorizontalAlignment="Left" Margin="240,119,0,0" TextWrapping="Wrap" Text="What you would like to harvest?" VerticalAlignment="Top"/>
-        <ListBox x:Name="garden_lb" HorizontalAlignment="Left" Height="180" Margin="240,142,0,0" VerticalAlignment="Top" Width="230" MouseDoubleClick="garden_lb_MouseDoubleClick"/>
+        <TextBlock x:Name="title_tb" HorizontalAlignment="Left" Margin="240,88,0,0" TextWrapping="Wrap" Text="Chatroom" VerticalAlignment="Top" FontSize="20" FontWeight="Bold"/>
+        <TextBlock x:Name="subtitle_tb" HorizontalAlignment="Left" Margin="240,119,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top"/>
+        <ListBox x:Name="garden_lb" HorizontalAlignment="Left" Height="180" Margin="240,142,0,0" VerticalAlignment="Top" Width="230" MouseDoubleClick="garden_lb_MouseDoubleClick" Visibility="Collapsed"/>
         <ListBox x:Name="inventory_lb" HorizontalAlignment="Left" Height="180" Margin="240,142,0,0" VerticalAlignment="Top" Width="230" Visibility="Collapsed"/>
         <ListBox x:Name="seed_lb" HorizontalAlignment="Left" Height="180" Margin="240,142,0,0" VerticalAlignment="Top" Width="230" Visibility="Collapsed" MouseDoubleClick="seed_lb_MouseDoubleClick"/>
         <TextBlock x:Name="money_tb" HorizontalAlignment="Left" Margin="85,306,0,0" TextWrapping="Wrap" Text="Money" VerticalAlignment="Top"/>
         <TextBlock x:Name="land_tb" HorizontalAlignment="Left" Margin="85,327,0,0" TextWrapping="Wrap" Text="Land" VerticalAlignment="Top"/>
-        <Button x:Name="garden_harvest_btn" Content="Harvest all" HorizontalAlignment="Left" Margin="396,338,0,0" VerticalAlignment="Top" Width="74" Click="garden_harvest_btn_Click"/>
+        <Button x:Name="garden_harvest_btn" Content="Harvest all" HorizontalAlignment="Left" Margin="396,338,0,0" VerticalAlignment="Top" Width="74" Click="garden_harvest_btn_Click" Visibility="Collapsed"/>
         <Button x:Name="inventory_sell_btn" Content="Sell in farmer's market" HorizontalAlignment="Left" Margin="320,338,0,0" VerticalAlignment="Top" Width="150" Visibility="Collapsed" Click="sell_inventory_btn_Click"/>
-        <TextBlock HorizontalAlignment="Left" Margin="76,196,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="10"><Run Text="name  seed / harvest / duration"/><LineBreak/><Run Text="strawberries  $2 / $8 / 30sec"/><LineBreak/><Run Text="spinach  $5 / $21 / 1min"/><LineBreak/><Run Text="pears  $2 / $20 / 3mins"/></TextBlock>
-        <TextBlock HorizontalAlignment="Left" Margin="150,34,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="10"><Run Text="1. Spoiled plant can be harvested but can't store in inventory"/><LineBreak/><Run Text="2. While plant is growing, you couldn't harvest"/><LineBreak/><Run Text="3. spoiled time = harvest time + harvest duration + 15mins"/><LineBreak/><Run Text="4. harvest left time &lt; 1min, status would be &quot;harvest&quot; "/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="396,22,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="10"><Run Text="name  seed / harvest / duration"/><LineBreak/><Run Text="strawberries  $2 / $8 / 30sec"/><LineBreak/><Run Text="spinach  $5 / $21 / 1min"/><LineBreak/><Run Text="pears  $2 / $20 / 3mins"/></TextBlock>
+        <Button x:Name="chat_btn" Content="Chat" HorizontalAlignment="Left" Margin="85,66,0,0" VerticalAlignment="Top" Width="118" Click="chat_btn_Click"/>
+        <Button x:Name="trade_btn" Content="Trade marketplace" HorizontalAlignment="Left" Margin="85,199,0,0" VerticalAlignment="Top" Width="118" Click="trade_btn_Click"/>
+        <Button x:Name="propose_btn" Content="Propose Trade" HorizontalAlignment="Left" Margin="85,232,0,0" VerticalAlignment="Top" Width="118" Click="propose_btn_Click"/>
+        <ListBox x:Name="chat_lb" HorizontalAlignment="Left" Height="180" Margin="240,142,0,0" VerticalAlignment="Top" Width="230" />
+        <ListBox x:Name="propose_lb" HorizontalAlignment="Left" Height="180" Margin="240,142,0,0" VerticalAlignment="Top" Width="230" Visibility="Collapsed">
+            <TextBlock x:Name="p_seed_tb" Text="Plant" VerticalAlignment="Top"/>
+            <ComboBox x:Name="propose_seed_cb" Width="120"/>
+            <TextBlock x:Name="p_quantity_tb" Text="Quantity" VerticalAlignment="Top"/>
+            <TextBox x:Name="propose_quantity_tb" Height="22" TextWrapping="Wrap" Width="120"/>
+            <TextBlock x:Name="p_price_tb" Text="Price" VerticalAlignment="Top"/>
+            <TextBox x:Name="propose_price_tb" Height="24" TextWrapping="Wrap" Width="120"/>
+        </ListBox>
+        <ListBox x:Name="trade_lb" HorizontalAlignment="Left" Height="180" Margin="240,142,0,0" VerticalAlignment="Top" Width="230" Visibility="Collapsed" />
+        <Button x:Name="chat_send_btn" Content="Send" HorizontalAlignment="Left" Margin="396,338,0,0" VerticalAlignment="Top" Width="74" Click="chat_send_btn_Click"/>
+        <TextBox x:Name="chat_input_tb" HorizontalAlignment="Left" Height="23" Margin="240,335,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="140"/>
+        <Button x:Name="propose_accept_btn" Content="Accept Trade" HorizontalAlignment="Left" Margin="396,338,0,0" VerticalAlignment="Top" Width="74" Click="propose_accept_btn_Click" Visibility="Collapsed"/>
+        <Button x:Name="propose_summit_btn" Content="Summit" HorizontalAlignment="Left" Margin="396,338,0,0" VerticalAlignment="Top" Width="74" Click="propose_summit_btn_Click" Visibility="Collapsed"/>
+
     </Grid>
 </Window>
