@@ -270,6 +270,8 @@ namespace RLinPlantville
 
             set_menu_visibility(menusToShow, menusToHide);
 
+            UpdateTradeListBox();
+
         }
 
         private void propose_btn_Click(object sender, RoutedEventArgs e)
@@ -543,6 +545,27 @@ namespace RLinPlantville
             UpdateChatListBox();
         }
 
+        public void UpdateTradeListBox()
+        {
+            List<Trade> list = GetTrades();
+            trade_lb.Items.Clear();
+
+            foreach (Trade t in list)
+            {
+                string state = t.Fields.State;
+                string message = "";
+                
+                if (state.Equals("open"))
+                {
+                    message = $"{t.Fields.Author} wants to buy {t.Fields.Quantity} {t.Fields.Plant} for ${t.Fields.Price}";
+                } else // state = close, pending 
+                {
+                    message = $"{t.Fields.Author} bought {t.Fields.Quantity} {t.Fields.Plant} for ${t.Fields.Price} from {t.Fields.AcceptedBy}";
+                } 
+                trade_lb.Items.Add($"[{state}] {message}");
+            }
+        }
+
         public void UpdateChatListBox() {
             List<Chat> list = GetChatMessages();
             chat_lb.Items.Clear();
@@ -562,6 +585,12 @@ namespace RLinPlantville
                 return JArray.Parse(jsonString);
             }
         }
+
+        public static List<Trade> GetTrades()
+        {
+            var url = new Uri("http://plantville.herokuapp.com/trades");
+            return GetObjects<Trade>(url);
+        }
         public static List<Chat> GetChatMessages()
         {
             var url = new Uri("http://plantville.herokuapp.com");
@@ -579,11 +608,56 @@ namespace RLinPlantville
             {
                 T item = obj.ToObject<T>();
 
-                // System.Console.WriteLine(item.ToString());
                 list.Add(item);
             }
 
             return list;
+        }
+    }
+    public class Trade
+    {
+        public string Model { get; set; }
+        public int Pk { get; set; }
+
+        public TradeMeta Fields { get; set; }
+
+        public class TradeMeta
+        {
+            public string Author { get; set; }
+
+            [JsonProperty("accepted_by")]
+            public string AcceptedBy { get; set; } // default: null
+            public int Price { get; set; }
+            public string State { get; set; } // pending, open, close. default: open
+            public string Plant { get; set; } // seed_list
+            public int Quantity { get; set; }
+
+            [JsonProperty("created_at")]
+            public DateTime CreatedAt { get; set; }
+
+            [JsonProperty("updated_at")]
+            public DateTime UpdatedAt { get; set; }
+        }
+
+        public override string ToString()
+        {
+            return $"Model {Model}, Pk {Pk}, Fields: Author {Fields.Author}, AcceptedBy {Fields.AcceptedBy}, Price {Fields.Price}, State {Fields.State}, Plant {Fields.Plant}, Quantity {Fields.Quantity}, CreatedAt {Fields.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")}";
+        }
+    }
+
+    public class TradeInput
+    {
+        public string Author { get; set; }
+        public string Plant { get; set; }
+        public int Quantity { get; set; }
+        public int Price { get; set; }
+
+        public TradeInput(string author, string plant, int quantity, int price)
+        {
+            Author = author;
+            Plant = plant;
+            Quantity = quantity;
+            Price = price;
         }
     }
     public class ChatInput
